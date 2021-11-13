@@ -136,12 +136,26 @@ router.get('/auth/github/callback',
     res.status(401);
   });
 //-------------------------------
-
+let cache = '';
+router.post('/recovery', async (req, res, next) => {
+  try {
+    const {contra} = req.body;
+    let usu = await SecModel.cambiarContra(correo, contra);
+    res.status(200).json({"msg":"Contraseña editata correctamente"});
+  } catch (e) {
+    res.status(500).json({ "msg": "Error al editar la contraseña" });
+  }
+});
 router.post('/login', async(req, res, next)=>{});
 router.post('/signin', async(req, res, next)=>{});
 
 router.post('/passrecovery', async(req, res, next)=>{
-  mailSender("marcelazelaya547@yahoo.com", "Pruebaaaaas", "Esto es una prueba de correo");
+  const {correo} = req.body;
+  let usu = await SecModel.getByEmail(correo);
+  if(usu){
+    cache=usu.email;
+    mailSender("marcelazelaya547@yahoo.com", "Pruebaaaaas", "Esto es una prueba de correo");
+  }
 
   res.status(200).json({"msg":"Correo enviado correctamente"});
 })
